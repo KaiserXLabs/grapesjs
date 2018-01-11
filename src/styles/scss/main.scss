@@ -380,6 +380,22 @@ $prefix: $app-prefix;
     overflow: auto;
     box-shadow: 0 0 5px $mainDkColor;
   }
+
+  &##{$pn-prefix}left {
+    border-bottom: 2px solid $mainDkColor;
+    left: 0;
+    width: $leftWidth;
+    z-index: 4;
+  }
+
+  &##{$pn-prefix}left-container {
+    height: 100%;
+    margin: 42px 0 0;
+    left: 0;
+    width: $leftWidth;
+    overflow: auto;
+    box-shadow: 0 0 5px $mainDkColor;
+  }
 }
 
 .#{$pn-prefix}buttons {
