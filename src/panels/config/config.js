@@ -56,7 +56,10 @@ module.exports = {
       className: 'fa fa-cog',
       command: otm,
       attributes: { title: 'Settings' },
-    },{
+    }],
+  },{
+    id: 'left',
+    buttons: [{
       id: ola,
       className: 'fa fa-bars',
       command: ola,
@@ -66,7 +69,8 @@ module.exports = {
       className: 'fa fa-th-large',
       command: obl,
       attributes  : { title: 'Open Blocks' },
-    }],
+      active: true
+    }]
   }],
 
   // Editor model

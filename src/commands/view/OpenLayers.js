@@ -17,10 +17,10 @@ module.exports = {
       config.layers.opened = em.editor.get('opened');
 
       // Check if panel exists otherwise crate it
-      if(!panels.getPanel('views-container'))
-        this.panel = panels.addPanel({id: 'views-container'});
+      if(!panels.getPanel('left-container'))
+        this.panel = panels.addPanel({id: 'left-container'});
       else
-        this.panel = panels.getPanel('views-container');
+        this.panel = panels.getPanel('left-container');
 
       const toAppend = $(`<div class="${pfx}layers"></div>`);
       this.panel.set('appendContent', toAppend).trigger('change:appendContent');

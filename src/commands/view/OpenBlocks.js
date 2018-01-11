@@ -6,7 +6,7 @@ module.exports = {
 
     if (!this.blocks) {
       bm.render();
-      const id = 'views-container';
+      const id = 'left-container';
       const panels = pn.getPanel(id) || pn.addPanel({id});
       const blocks = document.createElement('div');
       const search = document.createElement('input');
