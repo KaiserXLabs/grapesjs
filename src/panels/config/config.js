@@ -1,6 +1,6 @@
 var crc = 'create-comp';
 var mvc = 'move-comp';
-var swv = 'sw-visibility';
+var swv = 'sw-visibility';
 var expt = 'export-template';
 var osm = 'open-sm';
 var otm = 'open-tm';
@@ -74,8 +74,8 @@ module.exports = {
   }],
 
   // Editor model
-  em : null,
+  em: null,
 
   // Delay before show children buttons (in milliseconds)
-  delayBtnsShow  : 300,
+  delayBtnsShow: 300
 };
