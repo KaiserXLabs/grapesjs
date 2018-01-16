@@ -88,6 +88,10 @@
   font-size: 1rem;
   border-bottom: 1px solid white;
 
+  &:focus {
+    outline-width: 0px;
+  }
+
   &::placeholder {
     color: $fontColor;
   }
