@@ -44,6 +44,7 @@
   box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease 0s;
   transition-property: box-shadow, color;
+  background-color: #1E1F25;
 
   &:hover {
     box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.15);
@@ -80,12 +81,16 @@
 .#{$app-prefix}blocks-search {
   width: calc(100% - 10px);
   margin: 0 5px 5px 5px;
-  background-color: transparent;
+  background-color: #000;
   color: $fontColor;
   border: none;
   height: 30px;
   font-size: 1rem;
-  border-bottom: 3px solid #333333;
+  border-bottom: 1px solid white;
+
+  &:focus {
+    outline-width: 0px;
+  }
 
   &::placeholder {
     color: $fontColor;

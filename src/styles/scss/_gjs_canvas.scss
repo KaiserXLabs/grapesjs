@@ -4,7 +4,7 @@ $canvasTop: 40px;
 .#{$cv-prefix}canvas {
   background-color: rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
-  width: (100% - $leftWidth*2);
+  width: calc(100% - #{$leftWidth}*2);
   height: calc(100% - $canvasTop);
   bottom: 0;
   overflow: hidden;
