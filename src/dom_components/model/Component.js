@@ -176,7 +176,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
       this.config = opt.config || {};
       this.ccid = Component.createId(this);
       this.set('attributes', this.get('attributes') || {});
-      this.on('destroy', this.handleRemove);
+      this.on('remove', this.handleRemove);
       this.listenTo(this, 'change:script', this.scriptUpdated);
       this.listenTo(this, 'change:traits', this.traitsUpdated);
       this.listenTo(this, 'change:tagName', this.tagUpdated);
@@ -751,7 +751,7 @@ const Component = Backbone.Model.extend(Styleable).extend(
     emitUpdate(property) {
       const em = this.em;
       const event = 'component:update' + (property ? `:${property}` : '');
-      em && em.trigger(event, this.model);
+      em && em.trigger(event, this);
     }
   },
   {

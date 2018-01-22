@@ -389,7 +389,7 @@ $prefix: $app-prefix;
   }
 
   &##{$pn-prefix}left-container {
-    height: 100%;
+    height: calc(100% - 42px);
     margin: 42px 0 0;
     left: 0;
     width: $leftWidth;
