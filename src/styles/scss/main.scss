@@ -51,7 +51,7 @@
 $prefix: $app-prefix;
 
 .#{$prefix} {
-  @each $cnum, $ccol in (one, $primaryColor), (two, $secondaryColor), (three, $tertiaryColor), (four, $quaternaryColor) {
+  @each $cnum, $ccol in (one, $primaryColor), (two, $secondaryColor), (three, $quaternaryColor), (four, $quaternaryColor) {
     &#{$cnum} {
       &-bg {
         background-color: $ccol;
