@@ -29,13 +29,18 @@ module.exports = {
       blocks.appendChild(bm.getContainer());
       panels.set('appendContent', blocks).trigger('change:appendContent');
       this.blocks = blocks;
+      this.panel = panels;
     }
 
+    this.panel.set('visible', true).trigger('change:visibility');
     this.blocks.style.display = 'block';
   },
 
   stop() {
     const blocks = this.blocks;
     blocks && (blocks.style.display = 'none');
+
+    const panel = this.panel;
+    panel && panel.set('visible', false).trigger('change:visibility');
   }
 };
