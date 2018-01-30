@@ -30,13 +30,13 @@ module.exports = {
       this.toAppend = toAppend;
     }
 
-    this.panel.set('visible', true).trigger('change:visibility');
+    this.panel.set('visible', true);
     this.toAppend.show();
   },
 
   stop() {
     const panel =  this.panel;
-    panel && panel.set('visible', false).trigger('change:visibility');
+    panel && panel.set('visible', false);
     this.toAppend && this.toAppend.hide();
   }
 };

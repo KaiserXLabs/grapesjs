@@ -121,8 +121,8 @@
 
       editor.on('block:drag:start', function() {
         let Panels = this.get('Panels');
-        let panel = Panels.getPanel('left-container');
-        panel && panel.set('visible', false).trigger('change:visibility');
+        let button = Panels.getButton('left', 'open-blocks');
+        button && button.set('active', 0);
       });
 
     </script>

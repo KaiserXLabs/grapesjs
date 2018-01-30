@@ -13,7 +13,7 @@ module.exports = Backbone.View.extend({
     this.visibleCls = 'visible';
     this.listenTo(this.model, 'change:appendContent', this.appendContent);
     this.listenTo(this.model, 'change:content', this.updateContent);
-    this.listenTo(this.model, 'change:visibility', this.updateVisibility);
+    this.listenTo(this.model, 'change:visible', this.updateVisible);
   },
 
   /**
@@ -34,7 +34,7 @@ module.exports = Backbone.View.extend({
     return this.model.get('attributes');
   },
 
-  updateVisibility() {
+  updateVisible() {
     if (this.model.get('visible')) {
       this.$el.addClass(this.visibleCls);
     } else {

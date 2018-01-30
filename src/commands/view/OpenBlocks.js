@@ -32,7 +32,7 @@ module.exports = {
       this.panel = panels;
     }
 
-    this.panel.set('visible', true).trigger('change:visibility');
+    this.panel.set('visible', true);
     this.blocks.style.display = 'block';
   },
 
@@ -41,6 +41,6 @@ module.exports = {
     blocks && (blocks.style.display = 'none');
 
     const panel = this.panel;
-    panel && panel.set('visible', false).trigger('change:visibility');
+    panel && panel.set('visible', false);
   }
 };
