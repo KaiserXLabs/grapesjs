@@ -29,10 +29,14 @@ module.exports = {
       toAppend.append(this.$layers);
       this.toAppend = toAppend;
     }
+
+    this.panel.set('visible', true).trigger('change:visibility');
     this.toAppend.show();
   },
 
   stop() {
+    const panel =  this.panel;
+    panel && panel.set('visible', false).trigger('change:visibility');
     this.toAppend && this.toAppend.hide();
   }
 };

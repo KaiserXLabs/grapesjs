@@ -85,6 +85,7 @@
         container: '#gjs',
         height: '100%',
         fromElement: true,
+        nativeDnD: false,
         storageManager: { autoload: 0 },
         styleManager : {
           sectors: [{
@@ -117,6 +118,13 @@
         attributes: { class:'gjs-fonts gjs-f-b1' },
         content: `<div style="padding-top:50px; padding-bottom:50px; text-align:center">Test block</div>`
       })
+
+      editor.on('block:drag:start', function() {
+        let Panels = this.get('Panels');
+        let panel = Panels.getPanel('left-container');
+        panel && panel.set('visible', false).trigger('change:visibility');
+      });
+
     </script>
   </body>
 </html>

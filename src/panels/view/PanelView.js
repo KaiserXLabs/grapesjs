@@ -10,8 +10,10 @@ module.exports = Backbone.View.extend({
     this.buttons = this.model.get('buttons');
     this.className = this.pfx + 'panel';
     this.id = this.pfx + this.model.get('id');
+    this.visibleCls = 'visible';
     this.listenTo(this.model, 'change:appendContent', this.appendContent);
     this.listenTo(this.model, 'change:content', this.updateContent);
+    this.listenTo(this.model, 'change:visibility', this.updateVisibility);
   },
 
   /**
@@ -30,6 +32,14 @@ module.exports = Backbone.View.extend({
 
   attributes() {
     return this.model.get('attributes');
+  },
+
+  updateVisibility() {
+    if (this.model.get('visible')) {
+      this.$el.addClass(this.visibleCls);
+    } else {
+      this.$el.removeClass(this.visibleCls);
+    }
   },
 
   initResize() {
@@ -98,6 +108,7 @@ module.exports = Backbone.View.extend({
       el.append(buttons.render().el);
     }
 
+    this.model.get('visible') ? el.addClass('visible') : el.removeClass('visible');
     el.append(this.model.get('content'));
     return this;
   }
