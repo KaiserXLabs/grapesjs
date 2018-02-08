@@ -108,7 +108,6 @@ module.exports = Backbone.View.extend({
       el.append(buttons.render().el);
     }
 
-    this.model.get('visible') ? el.addClass('visible') : el.removeClass('visible');
     el.append(this.model.get('content'));
     return this;
   }
