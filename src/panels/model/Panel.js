@@ -5,7 +5,7 @@ module.exports = Backbone.Model.extend({
   defaults: {
     id: '',
     content: '',
-    visible: true,
+    visible: false,
     buttons: [],
     attributes: {}
   },
