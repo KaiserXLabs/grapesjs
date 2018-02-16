@@ -211,7 +211,7 @@ module.exports = () => {
       }
 
       component = new Component(wrapper, {
-        sm: em,
+        em,
         config: c,
         componentTypes
       });
@@ -230,7 +230,7 @@ module.exports = () => {
      * @private
      */
     onLoad() {
-      this.getComponents().reset(c.components);
+      this.setComponents(c.components);
     },
 
     /**
@@ -513,12 +513,11 @@ module.exports = () => {
       const previousModel = em.previous('selectedComponent');
 
       // Deselect the previous component
-      if (previousModel) {
+      previousModel &&
         previousModel.set({
           status: '',
           state: ''
         });
-      }
 
       model && model.set('status', 'selected');
     }

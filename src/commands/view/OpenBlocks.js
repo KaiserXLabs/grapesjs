@@ -8,10 +8,13 @@ module.exports = {
       const id = 'left-container';
       const panels = pn.getPanel(id) || pn.addPanel({id});
       const blocks = document.createElement('div');
+      const searchWrapper = document.createElement('div');
       const search = document.createElement('input');
-      search.className = 'gjs-blocks-search';
-      search.placeholder = 'Search..'
 
+      blocks.className = 'gjs-blocks-search-wrapper';
+      searchWrapper.className = 'gjs-blocks-search-container';
+      search.className = 'gjs-blocks-search';
+      search.placeholder = 'Search ...'
       search.addEventListener("keyup", function() {
         const blocks = bm.getAll();
         const value = this.value.toLowerCase();
@@ -25,7 +28,8 @@ module.exports = {
         }
       });
 
-      blocks.appendChild(search);
+      searchWrapper.appendChild(search);
+      blocks.appendChild(searchWrapper);
       blocks.appendChild(bm.getContainer());
       panels.set('appendContent', blocks).trigger('change:appendContent');
       this.blocks = blocks;

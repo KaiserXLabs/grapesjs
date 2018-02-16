@@ -1,4 +1,4 @@
-import { isString } from 'underscore';
+import { isString, isFunction } from 'underscore';
 import { on, off, matches } from 'utils/mixins';
 const $ = Backbone.$;
 
@@ -311,12 +311,14 @@ module.exports = Backbone.View.extend({
     if (dropContent && em) {
       if (!dropModel) {
         let comps = em.get('DomComponents').getComponents();
-        let tempModel = comps.add(dropContent, {
+        const opts = {
+          avoidStore: 1,
           avoidChildren: 1,
           avoidUpdateStyle: 1,
           temporary: 1
-        });
-        dropModel = comps.remove(tempModel, { temporary: 1 });
+        };
+        let tempModel = comps.add(dropContent, opts);
+        dropModel = comps.remove(tempModel, opts);
         this.dropModel = dropModel instanceof Array ? dropModel[0] : dropModel;
       }
       return dropModel;
@@ -668,7 +670,6 @@ module.exports = Backbone.View.extend({
     const width = rect.width;
     const height = rect.height;
 
-    //console.log(pos, {top, left});
     if (
       y < top + off || // near top edge
       y > top + height - off || // near bottom edge
@@ -716,8 +717,6 @@ module.exports = Backbone.View.extend({
       height = el.offsetHeight;
       width = el.offsetWidth;
     }
-
-    //console.log('get dim', top, left, this.canvasRelative);
 
     return [top, left, height, width];
   },
@@ -916,12 +915,11 @@ module.exports = Backbone.View.extend({
     var clsReg = new RegExp('(?:^|\\s)' + this.freezeClass + '(?!\\S)', 'gi');
     let src = this.eV;
 
-    if (src) {
+    if (src && this.selectOnEnd) {
       var srcModel = this.getSourceModel();
       if (srcModel && srcModel.set) {
         srcModel.set('status', '');
         srcModel.set('status', 'selected');
-        //this.selectOnEnd && srcModel.set('status', 'selected');
       }
     }
 
@@ -930,9 +928,7 @@ module.exports = Backbone.View.extend({
     }
 
     if (this.plh) this.plh.style.display = 'none';
-
-    if (typeof this.onEndMove === 'function') this.onEndMove(created);
-
+    if (isFunction(this.onEndMove)) this.onEndMove(created, this);
     var dragHelper = this.dragHelper;
 
     if (dragHelper) {
@@ -972,7 +968,8 @@ module.exports = Backbone.View.extend({
       var opts = { at: index, noIncrement: 1 };
 
       if (!dropContent) {
-        modelTemp = targetCollection.add({}, opts);
+        // Putting `avoidStore` here will make the UndoManager behave wrong
+        modelTemp = targetCollection.add({}, { ...opts });
 
         if (model) {
           modelToDrop = model.collection.remove(model);

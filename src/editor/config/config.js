@@ -2,8 +2,14 @@ module.exports = {
   // Style prefix
   stylePrefix: 'gjs-',
 
-  //TEMP
+  // HTML string or object of components
   components: '',
+
+  // CSS string or object of rules
+  style: '',
+
+  // If true, will fetch HTML and CSS from selected container
+  fromElement: 0,
 
   // Show an alert before unload the page with unsaved changes
   noticeOnUnload: true,
@@ -224,8 +230,11 @@ module.exports = {
     ]
   },
 
-  //Configurations for Block Manager
+  // Configurations for Block Manager
   blockManager: {},
+
+  // Configurations for Trait Manager
+  traitManager: {},
 
   // Texts
 
