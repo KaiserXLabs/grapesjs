@@ -7,7 +7,7 @@
 		exports["grapesjs"] = factory();
 	else
 		root["grapesjs"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -93,11 +93,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
   // Set up Backbone appropriately for the environment. Start with AMD.
   if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1), __webpack_require__(9), exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function(_, $, exports) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1), __webpack_require__(9), exports], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, $, exports) {
       // Export global even in AMD case in case this script is loaded with
       // others that may still expect a global Backbone.
       root.Backbone = factory(root, exports, _, $);
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
   // Next for Node.js or CommonJS. jQuery may not be needed as a module.
@@ -1999,7 +1999,7 @@ return /******/ (function(modules) { // webpackBootstrap
   return Backbone;
 });
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
 
 /***/ }),
 /* 1 */
@@ -3548,9 +3548,9 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscor
   // an AMD load request. Those cases could generate an error when an
   // anonymous define() is called outside of a loader request.
   if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = (function() {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() {
       return _;
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
   }
 }.call(this));
@@ -4074,7 +4074,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var Backbone = __webpack_require__(0);
 var Components = __webpack_require__(49);
 var Selector = __webpack_require__(7);
-var Selectors = __webpack_require__(11);
+var Selectors = __webpack_require__(10);
 var Traits = __webpack_require__(151);
 var componentList = {};
 var componentIndex = 0;
@@ -8734,10 +8734,8 @@ function updateHeightsInViewport(cm) {
 // Read and store the height of line widgets associated with the
 // given line.
 function updateWidgetHeight(line) {
-  if (line.widgets) { for (var i = 0; i < line.widgets.length; ++i) {
-    var w = line.widgets[i], parent = w.node.parentNode;
-    if (parent) { w.height = parent.offsetHeight; }
-  } }
+  if (line.widgets) { for (var i = 0; i < line.widgets.length; ++i)
+    { line.widgets[i].height = line.widgets[i].node.parentNode.offsetHeight; } }
 }
 
 // Compute the lines that are visible in a given viewport (defaults
@@ -12043,11 +12041,11 @@ function onResize(cm) {
 }
 
 var keyNames = {
-  3: "Pause", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
+  3: "Enter", 8: "Backspace", 9: "Tab", 13: "Enter", 16: "Shift", 17: "Ctrl", 18: "Alt",
   19: "Pause", 20: "CapsLock", 27: "Esc", 32: "Space", 33: "PageUp", 34: "PageDown", 35: "End",
   36: "Home", 37: "Left", 38: "Up", 39: "Right", 40: "Down", 44: "PrintScrn", 45: "Insert",
   46: "Delete", 59: ";", 61: "=", 91: "Mod", 92: "Mod", 93: "Mod",
-  106: "*", 107: "=", 109: "-", 110: ".", 111: "/", 127: "Delete", 145: "ScrollLock",
+  106: "*", 107: "=", 109: "-", 110: ".", 111: "/", 127: "Delete",
   173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
   221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
   63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"
@@ -12194,9 +12192,6 @@ function keyName(event, noShift) {
   if (presto && event.keyCode == 34 && event["char"]) { return false }
   var name = keyNames[event.keyCode];
   if (name == null || event.altGraphKey) { return false }
-  // Ctrl-ScrollLock has keyCode 3, same as Ctrl-Pause,
-  // so we'll use event.code when available (Chrome 48+, FF 38+, Safari 10.1+)
-  if (event.keyCode == 3 && event.code) { name = event.code; }
   return addModifierNames(name, event, noShift)
 }
 
@@ -12536,26 +12531,18 @@ function lookupKeyForEditor(cm, name, handle) {
 // for bound mouse clicks.
 
 var stopSeq = new Delayed;
-
 function dispatchKey(cm, name, e, handle) {
   var seq = cm.state.keySeq;
   if (seq) {
     if (isModifierKey(name)) { return "handled" }
-    if (/\'$/.test(name))
-      { cm.state.keySeq = null; }
-    else
-      { stopSeq.set(50, function () {
-        if (cm.state.keySeq == seq) {
-          cm.state.keySeq = null;
-          cm.display.input.reset();
-        }
-      }); }
-    if (dispatchKeyInner(cm, seq + " " + name, e, handle)) { return true }
+    stopSeq.set(50, function () {
+      if (cm.state.keySeq == seq) {
+        cm.state.keySeq = null;
+        cm.display.input.reset();
+      }
+    });
+    name = seq + " " + name;
   }
-  return dispatchKeyInner(cm, name, e, handle)
-}
-
-function dispatchKeyInner(cm, name, e, handle) {
   var result = lookupKeyForEditor(cm, name, handle);
 
   if (result == "multi")
@@ -12568,6 +12555,10 @@ function dispatchKeyInner(cm, name, e, handle) {
     restartBlink(cm);
   }
 
+  if (seq && !result && /\'$/.test(name)) {
+    e_preventDefault(e);
+    return true
+  }
   return !!result
 }
 
@@ -13079,7 +13070,6 @@ function defineOptions(CodeMirror) {
     clearCaches(cm);
     regChange(cm);
   }, true);
-
   option("lineSeparator", null, function (cm, val) {
     cm.doc.lineSep = val;
     if (!val) { return }
@@ -13486,7 +13476,7 @@ function applyTextInput(cm, inserted, deleted, sel, origin) {
 
   var paste = cm.state.pasteIncoming || origin == "paste";
   var textLines = splitLinesAuto(inserted), multiPaste = null;
-  // When pasting N lines into N selections, insert one line per selection
+  // When pasing N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {
       if (sel.ranges.length % lastCopied.text.length == 0) {
@@ -15120,7 +15110,7 @@ CodeMirror$1.fromTextArea = fromTextArea;
 
 addLegacyProps(CodeMirror$1);
 
-CodeMirror$1.version = "5.34.0";
+CodeMirror$1.version = "5.31.0";
 
 return CodeMirror$1;
 
@@ -15386,7 +15376,7 @@ module.exports = Backbone.View.extend({
 "use strict";
 var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
 
-/*! cash-dom 1.3.7, https://github.com/kenwheeler/cash @license MIT */
+/*! cash-dom 1.3.5, https://github.com/kenwheeler/cash @license MIT */
 ;(function (root, factory) {
   if (true) {
     !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
@@ -15420,7 +15410,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
   var frag;
   function parseHTML(str) {
     if (!frag) {
-      frag = doc.implementation.createHTMLDocument(null);
+      frag = doc.implementation.createHTMLDocument();
       var base = frag.createElement("base");
       base.href = doc.location.href;
       frag.head.appendChild(base);
@@ -15433,7 +15423,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
 
   function onReady(fn) {
     if (doc.readyState !== "loading") {
-      setTimeout(fn);
+      fn();
     } else {
       doc.addEventListener("DOMContentLoaded", fn);
     }
@@ -15647,10 +15637,10 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
     return (v.classList ? v.classList.contains(c) : new RegExp("(^| )" + c + "( |$)", "gi").test(v.className));
   }
 
-  function addClass(v, c) {
+  function addClass(v, c, spacedName) {
     if (v.classList) {
       v.classList.add(c);
-    } else if (!hasClass(v, c)) {
+    } else if (spacedName.indexOf(" " + c + " ")) {
       v.className += " " + c;
     }
   }
@@ -15668,8 +15658,9 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
       var classes = getClasses(c);
 
       return (classes ? this.each(function (v) {
+        var spacedName = " " + v.className + " ";
         each(classes, function (c) {
-          addClass(v, c);
+          addClass(v, c, spacedName);
         });
       }) : this);
     },
@@ -15759,11 +15750,12 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
       }
       var classes = getClasses(c);
       return (classes ? this.each(function (v) {
+        var spacedName = " " + v.className + " ";
         each(classes, function (c) {
           if (hasClass(v, c)) {
             removeClass(v, c);
           } else {
-            addClass(v, c);
+            addClass(v, c, spacedName);
           }
         });
       }) : this);
@@ -16349,33 +16341,6 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;
 
 /***/ }),
 /* 10 */
-/***/ (function(module, exports) {
-
-var g;
-
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
-
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
-
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
-
-module.exports = g;
-
-
-/***/ }),
-/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16409,7 +16374,7 @@ module.exports = __webpack_require__(0).Collection.extend({
 });
 
 /***/ }),
-/* 12 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16423,7 +16388,7 @@ var _TypeableCollection2 = _interopRequireDefault(_TypeableCollection);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var Property = __webpack_require__(13);
+var Property = __webpack_require__(12);
 
 module.exports = __webpack_require__(0).Collection.extend(_TypeableCollection2.default).extend({
   types: [{
@@ -16492,7 +16457,7 @@ module.exports = __webpack_require__(0).Collection.extend(_TypeableCollection2.d
   }, {
     id: 'integer',
     model: __webpack_require__(41),
-    view: __webpack_require__(15),
+    view: __webpack_require__(14),
     isType: function isType(value) {
       if (value && value.type == 'integer') {
         return value;
@@ -16546,7 +16511,7 @@ module.exports = __webpack_require__(0).Collection.extend(_TypeableCollection2.d
 });
 
 /***/ }),
-/* 13 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16705,14 +16670,14 @@ module.exports = __webpack_require__(0).Model.extend({
 });
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(Backbone) {
 
 var PropertyView = __webpack_require__(5);
-var PropertyIntegerView = __webpack_require__(15);
+var PropertyIntegerView = __webpack_require__(14);
 var PropertyRadioView = __webpack_require__(35);
 var PropertySelectView = __webpack_require__(36);
 var PropertyColorView = __webpack_require__(37);
@@ -16779,7 +16744,7 @@ module.exports = Backbone.View.extend({
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16824,7 +16789,7 @@ module.exports = PropertyView.extend({
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16899,6 +16864,8 @@ module.exports = ComponentView.extend({
     if (editor && this.model.get('editable')) {
       editor.runCommand('open-assets', {
         target: this.model,
+        types: ['image'],
+        accept: 'image/*',
         onSelect: function onSelect() {
           editor.Modal.close();
           editor.AssetManager.setTarget(null);
@@ -16918,6 +16885,33 @@ module.exports = ComponentView.extend({
     return this;
   }
 });
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports) {
+
+var g;
+
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
+
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
+
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
+
+module.exports = g;
+
 
 /***/ }),
 /* 17 */
@@ -16983,7 +16977,7 @@ module.exports = PropertyView.extend({
           prop.parent = model;
         }, this);
 
-        var PropertiesView = __webpack_require__(14);
+        var PropertiesView = __webpack_require__(13);
         var propsView = new PropertiesView(this.getPropsConfig());
         this.$props = propsView.render().$el;
         this.properties = propsView.properties;
@@ -17742,6 +17736,7 @@ module.exports = {
     if (model) {
       if (model.get('selectable')) {
         editor.select(model);
+        this.initResize(model);
       } else {
         var parent = model.parent();
         while (parent && !parent.get('selectable')) {
@@ -17817,7 +17812,8 @@ module.exports = {
    * @private
    * */
   onSelect: function onSelect() {
-    var editor = this.editor;
+    // Get the selected model directly from the Editor as the event might
+    // be triggered manually without the model
     var model = this.em.getSelected();
     this.updateToolbar(model);
 
@@ -17828,27 +17824,28 @@ module.exports = {
       this.hideHighlighter();
       this.initResize(el);
     } else {
-      editor.stopCommand('resize');
+      this.editor.stopCommand('resize');
     }
   },
 
 
   /**
    * Init resizer on the element if possible
-   * @param  {HTMLElement} el
+   * @param  {HTMLElement|Component} elem
    * @private
    */
-  initResize: function initResize(el) {
+  initResize: function initResize(elem) {
     var em = this.em;
     var editor = em ? em.get('Editor') : '';
     var config = em ? em.get('Config') : '';
     var pfx = config.stylePrefix || '';
     var attrName = 'data-' + pfx + 'handler';
     var resizeClass = pfx + 'resizing';
-    var model = em.get('selectedComponent');
+    var model = !(0, _underscore.isElement)(elem) ? elem : em.getSelected();
     var resizable = model.get('resizable');
+    var el = (0, _underscore.isElement)(elem) ? elem : model.getEl();
     var options = {};
-    var modelToStyle;
+    var modelToStyle = void 0;
 
     var toggleBodyClass = function toggleBodyClass(method, e, opts) {
       var docs = opts.docs;
@@ -17935,11 +17932,12 @@ module.exports = {
       if ((typeof resizable === 'undefined' ? 'undefined' : _typeof(resizable)) == 'object') {
         options = _extends({}, options, resizable);
       }
-
       editor.runCommand('resize', { el: el, options: options });
 
       // On undo/redo the resizer rect is not updating, need somehow to call
       // this.updateRect on undo/redo action
+    } else {
+      editor.stopCommand('resize');
     }
   },
 
@@ -18793,7 +18791,6 @@ module.exports = function (config) {
      * @return {Array<Object>}
      */
     parseNode: function parseNode(el) {
-      var config = c.em && c.em.get('Config') || {};
       var result = [];
       var nodes = el.childNodes;
 
@@ -19060,9 +19057,9 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return ret("qualifier", "qualifier");
     } else if (/[:;{}\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
-    } else if (((ch == "u" || ch == "U") && stream.match(/rl(-prefix)?\(/i)) ||
-               ((ch == "d" || ch == "D") && stream.match("omain(", true, true)) ||
-               ((ch == "r" || ch == "R") && stream.match("egexp(", true, true))) {
+    } else if ((ch == "u" && stream.match(/rl(-prefix)?\(/)) ||
+               (ch == "d" && stream.match("omain(")) ||
+               (ch == "r" && stream.match("egexp("))) {
       stream.backUp(1);
       state.tokenize = tokenParenthesized;
       return ret("property", "word");
@@ -19145,16 +19142,16 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return pushContext(state, stream, "block");
     } else if (type == "}" && state.context.prev) {
       return popContext(state);
-    } else if (supportsAtComponent && /@component/i.test(type)) {
+    } else if (supportsAtComponent && /@component/.test(type)) {
       return pushContext(state, stream, "atComponentBlock");
-    } else if (/^@(-moz-)?document$/i.test(type)) {
+    } else if (/^@(-moz-)?document$/.test(type)) {
       return pushContext(state, stream, "documentTypes");
-    } else if (/^@(media|supports|(-moz-)?document|import)$/i.test(type)) {
+    } else if (/^@(media|supports|(-moz-)?document|import)$/.test(type)) {
       return pushContext(state, stream, "atBlock");
-    } else if (/^@(font-face|counter-style)/i.test(type)) {
+    } else if (/^@(font-face|counter-style)/.test(type)) {
       state.stateArg = type;
       return "restricted_atBlock_before";
-    } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/i.test(type)) {
+    } else if (/^@(-(moz|ms|o|webkit)-)?keyframes$/.test(type)) {
       return "keyframes";
     } else if (type && type.charAt(0) == "@") {
       return pushContext(state, stream, "at");
@@ -19776,7 +19773,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       },
       "@": function(stream) {
         if (stream.eat("{")) return [null, "interpolation"];
-        if (stream.match(/^(charset|document|font-face|import|(-(moz|ms|o|webkit)-)?keyframes|media|namespace|page|supports)\b/i, false)) return false;
+        if (stream.match(/^(charset|document|font-face|import|(-(moz|ms|o|webkit)-)?keyframes|media|namespace|page|supports)\b/, false)) return false;
         stream.eatWhile(/[\w\\\-]/);
         if (stream.match(/^\s*:/, false))
           return ["variable-2", "variable-definition"];
@@ -19829,7 +19826,7 @@ module.exports = Backbone.Model.extend({
   defaults: {
     id: '',
     content: '',
-    visible: true,
+    visible: false,
     buttons: [],
     attributes: {}
   },
@@ -19943,8 +19940,10 @@ module.exports = Backbone.View.extend({
     this.buttons = this.model.get('buttons');
     this.className = this.pfx + 'panel';
     this.id = this.pfx + this.model.get('id');
+    this.visibleCls = 'visible';
     this.listenTo(this.model, 'change:appendContent', this.appendContent);
     this.listenTo(this.model, 'change:content', this.updateContent);
+    this.listenTo(this.model, 'change:visible', this.updateVisible);
   },
 
 
@@ -19964,6 +19963,13 @@ module.exports = Backbone.View.extend({
   },
   attributes: function attributes() {
     return this.model.get('attributes');
+  },
+  updateVisible: function updateVisible() {
+    if (this.model.get('visible')) {
+      this.$el.addClass(this.visibleCls);
+    } else {
+      this.$el.removeClass(this.visibleCls);
+    }
   },
   initResize: function initResize() {
     var em = this.config.em;
@@ -20107,7 +20113,7 @@ module.exports = function () {
   var c = {},
       defaults = __webpack_require__(117),
       Sectors = __webpack_require__(118),
-      Properties = __webpack_require__(12),
+      Properties = __webpack_require__(11),
       SectorsView = __webpack_require__(129);
   var properties = void 0;
   var sectors, SectView;
@@ -20620,7 +20626,7 @@ exports.default = {
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var Property = __webpack_require__(13);
+var Property = __webpack_require__(12);
 
 module.exports = Property.extend({
   defaults: _extends({}, Property.prototype.defaults, {
@@ -20644,7 +20650,7 @@ module.exports = Property.extend({
 
   init: function init() {
     var properties = this.get('properties') || [];
-    var Properties = __webpack_require__(12);
+    var Properties = __webpack_require__(11);
     this.set('properties', new Properties(properties));
     this.listenTo(this, 'change:value', this.updateValues);
   },
@@ -20860,7 +20866,7 @@ module.exports = PropertyCompositeView.extend({
     var self = this;
     var model = this.model;
     var fieldEl = this.el.querySelector('[data-layers-wrapper]');
-    var PropertiesView = __webpack_require__(14);
+    var PropertiesView = __webpack_require__(13);
     var propsConfig = {
       target: this.target,
       propTarget: this.propTarget,
@@ -21108,7 +21114,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var InputColor = __webpack_require__(38);
 
-module.exports = __webpack_require__(15).extend({
+module.exports = __webpack_require__(14).extend({
   setValue: function setValue(value) {
     var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
@@ -21401,7 +21407,7 @@ module.exports = PropertyView.extend({
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var Property = __webpack_require__(13);
+var Property = __webpack_require__(12);
 
 module.exports = Property.extend({
   defaults: _extends({}, Property.prototype.defaults, {
@@ -21421,7 +21427,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _underscore = __webpack_require__(1);
 
-var Property = __webpack_require__(13);
+var Property = __webpack_require__(12);
 var InputNumber = __webpack_require__(18);
 
 module.exports = Property.extend({
@@ -21637,7 +21643,7 @@ var _fetch2 = _interopRequireDefault(_fetch);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 module.exports = Backbone.View.extend({
-  template: _.template('\n  <form>\n    <div id="<%= pfx %>title"><%= title %></div>\n    <input type="file" id="<%= uploadId %>" name="file" accept="image/*" <%= disabled ? \'disabled\' : \'\' %> multiple/>\n    <div style="clear:both;"></div>\n  </form>\n  '),
+  template: _.template('\n  <form>\n    <div id="<%= pfx %>title"><%= title %></div>\n    <input type="file" id="<%= uploadId %>" name="file" accept="*/*" <%= disabled ? \'disabled\' : \'\' %> multiple/>\n    <div style="clear:both;"></div>\n  </form>\n  '),
 
   events: {},
 
@@ -22014,7 +22020,7 @@ var _Styleable2 = _interopRequireDefault(_Styleable);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var Backbone = __webpack_require__(0);
-var Selectors = __webpack_require__(11);
+var Selectors = __webpack_require__(10);
 
 module.exports = Backbone.Model.extend(_Styleable2.default).extend({
   defaults: {
@@ -22262,8 +22268,8 @@ exports.default = {
       var em = _this.em;
       _this.trigger('change:style:' + pr);
       if (em) {
-        em.trigger('styleable:change');
-        em.trigger('styleable:change:' + pr);
+        em.trigger('styleable:change', _this, pr);
+        em.trigger('styleable:change:' + pr, _this, pr);
       }
     });
 
@@ -23640,7 +23646,7 @@ module.exports = function () {
     plugins: plugins,
 
     // Will be replaced on build
-    version: '0.14.9',
+    version: '0.14.10',
 
     /**
      * Initializes an editor based on passed options
@@ -24251,6 +24257,7 @@ module.exports = function (config) {
     * * `component:styleUpdate` - Triggered when the style of the component is updated, the model is passed as an argument to the callback
     * * `component:styleUpdate:{propertyName}` - Listen for a specific style property change, the model is passed as an argument to the callback
     * * `component:selected` - New component selected, the selected model is passed as an argument to the callback
+    * * `component:deselected` - Component deselected, the deselected model is passed as an argument to the callback
     * ## Blocks
     * * `block:add` - New block added
     * * `block:remove` - Block removed
@@ -24544,8 +24551,10 @@ module.exports = {
   traitManager: {},
 
   // Texts
+  textViewCode: 'Code',
 
-  textViewCode: 'Code'
+  // Keep unused styles within the editor
+  keepUnusedStyles: 0
 };
 
 /***/ }),
@@ -24759,13 +24768,10 @@ module.exports = Backbone.Model.extend({
    * @param   {Object}   Options
    * @private
    * */
-  componentSelected: function componentSelected(model, val, options) {
-    if (!this.get('selectedComponent')) {
-      this.trigger('deselect-comp');
-    } else {
-      this.trigger('select-comp', [model, val, options]);
-      this.trigger('component:selected', arguments);
-    }
+  componentSelected: function componentSelected(editor, selected, options) {
+    var prev = this.previous('selectedComponent');
+    prev && this.trigger('component:deselected', prev, options);
+    selected && this.trigger('component:selected', selected, options);
   },
 
 
@@ -24880,13 +24886,15 @@ module.exports = Backbone.Model.extend({
     var config = this.config;
     var wrappesIsBody = config.wrappesIsBody;
     var avoidProt = opts.avoidProtected;
+    var keepUnusedStyles = !(0, _underscore.isUndefined)(opts.keepUnusedStyles) ? opts.keepUnusedStyles : config.keepUnusedStyles;
     var cssc = this.get('CssComposer');
     var wrp = this.get('DomComponents').getComponent();
     var protCss = !avoidProt ? config.protectedCss : '';
 
     return protCss + this.get('CodeManager').getCode(wrp, 'css', {
       cssc: cssc,
-      wrappesIsBody: wrappesIsBody
+      wrappesIsBody: wrappesIsBody,
+      keepUnusedStyles: keepUnusedStyles
     });
   },
 
@@ -25984,7 +25992,7 @@ module.exports = Backbone.View.extend({
         h = 0,
         un = 'px',
         margI = 5,
-        brdCol = '#62c462',
+        brdCol = '#00ADFF',
         brd = 3,
         method = pos.method;
     var elDim = dims[pos.index];
@@ -28406,11 +28414,11 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
   // Set up Backbone appropriately for the environment. Start with AMD.
   if (true) {
-    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1), __webpack_require__(9), exports], __WEBPACK_AMD_DEFINE_RESULT__ = (function(_, $, exports) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(1), __webpack_require__(9), exports], __WEBPACK_AMD_DEFINE_RESULT__ = function(_, $, exports) {
       // Export global even in AMD case in case this script is loaded with
       // others that may still expect a global Backbone.
       root.Backbone = factory(root, exports, _, $);
-    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+    }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
   // Next for Node.js or CommonJS. jQuery may not be needed as a module.
@@ -30265,7 +30273,7 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_
 
 }));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)))
 
 /***/ }),
 /* 71 */
@@ -30886,7 +30894,7 @@ module.exports = __webpack_require__(0).Model.extend({
   }
 
   function Promise(fn) {
-    if (!(this instanceof Promise)) throw new TypeError('Promises must be constructed via new');
+    if (typeof this !== 'object') throw new TypeError('Promises must be constructed via new');
     if (typeof fn !== 'function') throw new TypeError('not a function');
     this._state = 0;
     this._handled = false;
@@ -31010,9 +31018,9 @@ module.exports = __webpack_require__(0).Model.extend({
   };
 
   Promise.all = function (arr) {
+    var args = Array.prototype.slice.call(arr);
+
     return new Promise(function (resolve, reject) {
-      if (!arr || typeof arr.length === 'undefined') throw new TypeError('Promise.all accepts an array');
-      var args = Array.prototype.slice.call(arr);
       if (args.length === 0) return resolve([]);
       var remaining = args.length;
 
@@ -31110,7 +31118,7 @@ module.exports = __webpack_require__(0).Model.extend({
 /* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(global) {var apply = Function.prototype.apply;
+var apply = Function.prototype.apply;
 
 // DOM APIs, for completeness
 
@@ -31161,17 +31169,9 @@ exports._unrefActive = exports.active = function(item) {
 
 // setimmediate attaches itself to the global object
 __webpack_require__(77);
-// On some exotic environments, it's not clear which object `setimmeidate` was
-// able to install onto.  Search each possibility in the same order as the
-// `setimmediate` library.
-exports.setImmediate = (typeof self !== "undefined" && self.setImmediate) ||
-                       (typeof global !== "undefined" && global.setImmediate) ||
-                       (this && this.setImmediate);
-exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
-                         (typeof global !== "undefined" && global.clearImmediate) ||
-                         (this && this.clearImmediate);
+exports.setImmediate = setImmediate;
+exports.clearImmediate = clearImmediate;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
 
 /***/ }),
 /* 77 */
@@ -31364,7 +31364,7 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
     attachTo.clearImmediate = clearImmediate;
 }(typeof self === "undefined" ? typeof global === "undefined" ? this : global : self));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10), __webpack_require__(78)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16), __webpack_require__(78)))
 
 /***/ }),
 /* 78 */
@@ -32186,7 +32186,7 @@ module.exports = function (config) {
   var c = config || {},
       defaults = __webpack_require__(88),
       Selector = __webpack_require__(7),
-      Selectors = __webpack_require__(11),
+      Selectors = __webpack_require__(10),
       ClassTagsView = __webpack_require__(89);
   var selectors, selectorTags;
 
@@ -33480,7 +33480,7 @@ module.exports = __webpack_require__(0).Model.extend({
             return;
           }
 
-          code += _this2.buildFromRule(rule, dump);
+          code += _this2.buildFromRule(rule, dump, opts);
         });
 
         // Get at-rules
@@ -33488,7 +33488,7 @@ module.exports = __webpack_require__(0).Model.extend({
           var rulesStr = '';
           var mRules = atRules[atRule];
           mRules.forEach(function (rule) {
-            return rulesStr += _this2.buildFromRule(rule, dump);
+            return rulesStr += _this2.buildFromRule(rule, dump, opts);
           });
 
           if (rulesStr) {
@@ -33512,6 +33512,8 @@ module.exports = __webpack_require__(0).Model.extend({
   buildFromRule: function buildFromRule(rule, dump) {
     var _this3 = this;
 
+    var opts = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
     var result = '';
     var selectorStrNoAdd = rule.selectorsToString({ skipAdd: 1 });
     var selectorsAdd = rule.get('selectorsAdd');
@@ -33521,7 +33523,7 @@ module.exports = __webpack_require__(0).Model.extend({
     // This will not render a rule if there is no its component
     rule.get('selectors').each(function (selector) {
       var name = selector.getFullName();
-      if (_this3.compCls.indexOf(name) >= 0 || _this3.ids.indexOf(name) >= 0) {
+      if (_this3.compCls.indexOf(name) >= 0 || _this3.ids.indexOf(name) >= 0 || opts.keepUnusedStyles) {
         found = 1;
       }
     });
@@ -33907,7 +33909,6 @@ var xmlConfig = {
   doNotIndent: {},
   allowUnquoted: false,
   allowMissing: false,
-  allowMissingTagName: false,
   caseFold: false
 }
 
@@ -34082,9 +34083,6 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
       state.tagName = stream.current();
       setStyle = "tag";
       return attrState;
-    } else if (config.allowMissingTagName && type == "endTag") {
-      setStyle = "tag bracket";
-      return attrState(type, stream, state);
     } else {
       setStyle = "error";
       return tagNameState;
@@ -34103,9 +34101,6 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
         setStyle = "tag error";
         return closeStateErr;
       }
-    } else if (config.allowMissingTagName && type == "endTag") {
-      setStyle = "tag bracket";
-      return closeState(type, stream, state);
     } else {
       setStyle = "error";
       return closeStateErr;
@@ -34288,7 +34283,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var A = kw("keyword a"), B = kw("keyword b"), C = kw("keyword c"), D = kw("keyword d");
     var operator = kw("operator"), atom = {type: "atom", style: "atom"};
 
-    return {
+    var jsKeywords = {
       "if": kw("if"), "while": A, "with": A, "else": B, "do": B, "try": B, "finally": B,
       "return": D, "break": D, "continue": D, "new": kw("new"), "delete": C, "void": C, "throw": C,
       "debugger": kw("debugger"), "var": kw("var"), "const": kw("var"), "let": kw("var"),
@@ -34300,6 +34295,35 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       "yield": C, "export": kw("export"), "import": kw("import"), "extends": C,
       "await": C
     };
+
+    // Extend the 'normal' keywords with the TypeScript language extensions
+    if (isTS) {
+      var type = {type: "variable", style: "type"};
+      var tsKeywords = {
+        // object-like things
+        "interface": kw("class"),
+        "implements": C,
+        "namespace": C,
+        "module": kw("module"),
+        "enum": kw("module"),
+
+        // scope modifiers
+        "public": kw("modifier"),
+        "private": kw("modifier"),
+        "protected": kw("modifier"),
+        "abstract": kw("modifier"),
+        "readonly": kw("modifier"),
+
+        // types
+        "string": type, "number": type, "boolean": type, "any": type
+      };
+
+      for (var attr in tsKeywords) {
+        jsKeywords[attr] = tsKeywords[attr];
+      }
+    }
+
+    return jsKeywords;
   }();
 
   var isOperatorChar = /[+\-*&%=<>!?|~^@]/;
@@ -34388,7 +34412,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
           var kw = keywords[word]
           return ret(kw.type, kw.style, word)
         }
-        if (word == "async" && stream.match(/^(\s|\/\*.*?\*\/)*[\(\w]/, false))
+        if (word == "async" && stream.match(/^\s*[\(\w]/, false))
           return ret("async", "keyword", word)
       }
       return ret("variable", "variable", word)
@@ -34545,10 +34569,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
 
-  function isModifier(name) {
-    return name == "public" || name == "private" || name == "protected" || name == "abstract" || name == "readonly"
-  }
-
   // Combinators
 
   var defaultVars = {name: "this", next: {name: "arguments"}};
@@ -34605,19 +34625,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
     if (type == "function") return cont(functiondef);
     if (type == "for") return cont(pushlex("form"), forspec, statement, poplex);
-    if (type == "class" || (isTS && value == "interface")) { cx.marked = "keyword"; return cont(pushlex("form"), className, poplex); }
     if (type == "variable") {
-      if (isTS && value == "declare") {
+      if (isTS && value == "type") {
+        cx.marked = "keyword"
+        return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
+      } if (isTS && value == "declare") {
         cx.marked = "keyword"
         return cont(statement)
-      } else if (isTS && (value == "module" || value == "enum" || value == "type") && cx.stream.match(/^\s*\w/, false)) {
-        cx.marked = "keyword"
-        if (value == "enum") return cont(enumdef);
-        else if (value == "type") return cont(typeexpr, expect("operator"), typeexpr, expect(";"));
-        else return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
-      } else if (isTS && value == "namespace") {
-        cx.marked = "keyword"
-        return cont(pushlex("form"), expression, block, poplex)
       } else {
         return cont(pushlex("stat"), maybelabel);
       }
@@ -34628,23 +34642,25 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "default") return cont(expect(":"));
     if (type == "catch") return cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"),
                                      statement, poplex, popcontext);
+    if (type == "class") return cont(pushlex("form"), className, poplex);
     if (type == "export") return cont(pushlex("stat"), afterExport, poplex);
     if (type == "import") return cont(pushlex("stat"), afterImport, poplex);
+    if (type == "module") return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
     if (type == "async") return cont(statement)
     if (value == "@") return cont(expression, statement)
     return pass(pushlex("stat"), expression, expect(";"), poplex);
   }
-  function expression(type, value) {
-    return expressionInner(type, value, false);
+  function expression(type) {
+    return expressionInner(type, false);
   }
-  function expressionNoComma(type, value) {
-    return expressionInner(type, value, true);
+  function expressionNoComma(type) {
+    return expressionInner(type, true);
   }
   function parenExpr(type) {
     if (type != "(") return pass()
     return cont(pushlex(")"), expression, expect(")"), poplex)
   }
-  function expressionInner(type, value, noComma) {
+  function expressionInner(type, noComma) {
     if (cx.state.fatArrowAt == cx.stream.start) {
       var body = noComma ? arrowBodyNoComma : arrowBody;
       if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, expect("=>"), body, popcontext);
@@ -34654,7 +34670,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     var maybeop = noComma ? maybeoperatorNoComma : maybeoperatorComma;
     if (atomicTypes.hasOwnProperty(type)) return cont(maybeop);
     if (type == "function") return cont(functiondef, maybeop);
-    if (type == "class" || (isTS && value == "interface")) { cx.marked = "keyword"; return cont(pushlex("form"), classExpression, poplex); }
+    if (type == "class") return cont(pushlex("form"), classExpression, poplex);
     if (type == "keyword c" || type == "async") return cont(noComma ? expressionNoComma : expression);
     if (type == "(") return cont(pushlex(")"), maybeexpression, expect(")"), poplex, maybeop);
     if (type == "operator" || type == "spread") return cont(noComma ? expressionNoComma : expression);
@@ -34679,8 +34695,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "=>") return cont(pushcontext, noComma ? arrowBodyNoComma : arrowBody, popcontext);
     if (type == "operator") {
       if (/\+\+|--/.test(value) || isTS && value == "!") return cont(me);
-      if (isTS && value == "<" && cx.stream.match(/^([^>]|<.*?>)*>\s*\(/, false))
-        return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, me);
       if (value == "?") return cont(expression, expect(":"), expr);
       return cont(expr);
     }
@@ -34752,11 +34766,10 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(afterprop);
     } else if (type == "jsonld-keyword") {
       return cont(afterprop);
-    } else if (isTS && isModifier(value)) {
-      cx.marked = "keyword"
+    } else if (type == "modifier") {
       return cont(objprop)
     } else if (type == "[") {
-      return cont(expression, maybetype, expect("]"), afterprop);
+      return cont(expression, expect("]"), afterprop);
     } else if (type == "spread") {
       return cont(expressionNoComma, afterprop);
     } else if (value == "*") {
@@ -34808,18 +34821,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       if (value == "?") return cont(maybetype);
     }
   }
-  function mayberettype(type) {
-    if (isTS && type == ":") {
-      if (cx.stream.match(/^\s*\w+\s+is\b/, false)) return cont(expression, isKW, typeexpr)
-      else return cont(typeexpr)
-    }
-  }
-  function isKW(_, value) {
-    if (value == "is") {
-      cx.marked = "keyword"
-      return cont()
-    }
-  }
   function typeexpr(type, value) {
     if (type == "variable" || value == "void") {
       if (value == "keyof") {
@@ -34858,23 +34859,16 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
     if (value == "|" || type == ".") return cont(typeexpr)
     if (type == "[") return cont(expect("]"), afterType)
-    if (value == "extends" || value == "implements") { cx.marked = "keyword"; return cont(typeexpr) }
+    if (value == "extends") return cont(typeexpr)
   }
   function maybeTypeArgs(_, value) {
     if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, afterType)
   }
-  function typeparam() {
-    return pass(typeexpr, maybeTypeDefault)
-  }
-  function maybeTypeDefault(_, value) {
-    if (value == "=") return cont(typeexpr)
-  }
-  function vardef(_, value) {
-    if (value == "enum") {cx.marked = "keyword"; return cont(enumdef)}
+  function vardef() {
     return pass(pattern, maybetype, maybeAssign, vardefCont);
   }
   function pattern(type, value) {
-    if (isTS && isModifier(value)) { cx.marked = "keyword"; return cont(pattern) }
+    if (type == "modifier") return cont(pattern)
     if (type == "variable") { register(value); return cont(); }
     if (type == "spread") return cont(pattern);
     if (type == "[") return contCommasep(pattern, "]");
@@ -34923,13 +34917,12 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function functiondef(type, value) {
     if (value == "*") {cx.marked = "keyword"; return cont(functiondef);}
     if (type == "variable") {register(value); return cont(functiondef);}
-    if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, mayberettype, statement, popcontext);
-    if (isTS && value == "<") return cont(pushlex(">"), commasep(typeparam, ">"), poplex, functiondef)
+    if (type == "(") return cont(pushcontext, pushlex(")"), commasep(funarg, ")"), poplex, maybetype, statement, popcontext);
+    if (isTS && value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, functiondef)
   }
   function funarg(type, value) {
     if (value == "@") cont(expression, funarg)
-    if (type == "spread") return cont(funarg);
-    if (isTS && isModifier(value)) { cx.marked = "keyword"; return cont(funarg); }
+    if (type == "spread" || type == "modifier") return cont(funarg);
     return pass(pattern, maybetype, maybeAssign);
   }
   function classExpression(type, value) {
@@ -34941,17 +34934,15 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") {register(value); return cont(classNameAfter);}
   }
   function classNameAfter(type, value) {
-    if (value == "<") return cont(pushlex(">"), commasep(typeparam, ">"), poplex, classNameAfter)
-    if (value == "extends" || value == "implements" || (isTS && type == ",")) {
-      if (value == "implements") cx.marked = "keyword";
+    if (value == "<") return cont(pushlex(">"), commasep(typeexpr, ">"), poplex, classNameAfter)
+    if (value == "extends" || value == "implements" || (isTS && type == ","))
       return cont(isTS ? typeexpr : expression, classNameAfter);
-    }
     if (type == "{") return cont(pushlex("}"), classBody, poplex);
   }
   function classBody(type, value) {
-    if (type == "async" ||
+    if (type == "modifier" || type == "async" ||
         (type == "variable" &&
-         (value == "static" || value == "get" || value == "set" || (isTS && isModifier(value))) &&
+         (value == "static" || value == "get" || value == "set") &&
          cx.stream.match(/^\s+[\w$\xa1-\uffff]/, false))) {
       cx.marked = "keyword";
       return cont(classBody);
@@ -34961,7 +34952,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(isTS ? classfield : functiondef, classBody);
     }
     if (type == "[")
-      return cont(expression, maybetype, expect("]"), isTS ? classfield : functiondef, classBody)
+      return cont(expression, expect("]"), isTS ? classfield : functiondef, classBody)
     if (value == "*") {
       cx.marked = "keyword";
       return cont(classBody);
@@ -35008,12 +34999,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function arrayLiteral(type) {
     if (type == "]") return cont();
     return pass(commasep(expressionNoComma, "]"));
-  }
-  function enumdef() {
-    return pass(pushlex("form"), pattern, expect("{"), pushlex("}"), commasep(enummember, "}"), poplex, poplex)
-  }
-  function enummember() {
-    return pass(pattern, maybeAssign);
   }
 
   function isContinuedStatement(state, textAfter) {
@@ -36745,7 +36730,7 @@ module.exports = __webpack_require__(0).Collection.extend({
 var _underscore = __webpack_require__(1);
 
 var Backbone = __webpack_require__(0);
-var Properties = __webpack_require__(12);
+var Properties = __webpack_require__(11);
 var PropertyFactory = __webpack_require__(128);
 
 module.exports = Backbone.Model.extend({
@@ -37016,7 +37001,7 @@ module.exports = Backbone.Model.extend({
   },
 
   initialize: function initialize() {
-    var Properties = __webpack_require__(12);
+    var Properties = __webpack_require__(11);
     var properties = this.get('properties');
     var value = this.get('value');
     this.set('properties', properties instanceof Properties ? properties : new Properties(properties));
@@ -39546,7 +39531,7 @@ module.exports = Backbone.View.extend({
     this.$el[active ? 'addClass' : 'removeClass'](pfx + 'active');
   },
   render: function render() {
-    var PropertiesView = __webpack_require__(14);
+    var PropertiesView = __webpack_require__(13);
     var propsConfig = this.propsConfig;
     var className = this.pfx + 'layer';
     var model = this.model;
@@ -39595,7 +39580,7 @@ module.exports = Property.extend({
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var Property = __webpack_require__(15);
+var Property = __webpack_require__(14);
 
 module.exports = Property.extend({
   events: function events() {
@@ -40284,7 +40269,7 @@ module.exports = Backbone.View.extend({
 /* WEBPACK VAR INJECTION */(function(_) {
 
 var Backbone = __webpack_require__(0);
-var PropertiesView = __webpack_require__(14);
+var PropertiesView = __webpack_require__(13);
 
 module.exports = Backbone.View.extend({
   template: _.template('\n  <div class="<%= pfx %>title" data-sector-title>\n    <i id="<%= pfx %>caret" class="fa"></i>\n    <%= label %>\n  </div>'),
@@ -41176,7 +41161,7 @@ module.exports = function () {
       CssRule = __webpack_require__(45),
       CssRules = __webpack_require__(139),
       CssRulesView = __webpack_require__(140);
-  var Selectors = __webpack_require__(11);
+  var Selectors = __webpack_require__(10);
   var Selector = __webpack_require__(7);
 
   var rules, rulesView;
@@ -41251,10 +41236,12 @@ module.exports = function () {
 
       var ev = 'add remove';
       var rules = this.getAll();
+      var um = em.get('UndoManager');
+      um && um.add(rules);
       em.stopListening(rules, ev, this.handleChange);
       em.listenTo(rules, ev, this.handleChange);
       rules.each(function (rule) {
-        return _this.handleChange(rule);
+        return _this.handleChange(rule, { avoidStore: 1 });
       });
     },
 
@@ -41264,12 +41251,15 @@ module.exports = function () {
      * @private
      */
     handleChange: function handleChange(model) {
+      var opts = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
       var ev = 'change:style';
       var um = em.get('UndoManager');
       um && um.add(model);
       var handleUpdates = em.handleUpdates.bind(em);
       em.stopListening(model, ev, handleUpdates);
       em.listenTo(model, ev, handleUpdates);
+      !opts.avoidStore && handleUpdates('', '', opts);
     },
 
 
@@ -42286,7 +42276,7 @@ module.exports = function () {
   }, {
     id: 'image',
     model: __webpack_require__(20),
-    view: __webpack_require__(16)
+    view: __webpack_require__(15)
   }, {
     id: 'script',
     model: __webpack_require__(171),
@@ -43330,7 +43320,7 @@ module.exports = Component.extend({
 
 
 var Backbone = __webpack_require__(0);
-var ComponentView = __webpack_require__(16);
+var ComponentView = __webpack_require__(15);
 
 module.exports = ComponentView.extend({
   tagName: 'div',
@@ -43790,7 +43780,7 @@ module.exports = Component.extend({
 
 
 var Backbone = __webpack_require__(0);
-var ComponentView = __webpack_require__(16);
+var ComponentView = __webpack_require__(15);
 var OComponentView = __webpack_require__(3);
 
 module.exports = ComponentView.extend({
@@ -43950,7 +43940,7 @@ module.exports = Component.extend({
 
 
 var Backbone = __webpack_require__(0);
-var ComponentView = __webpack_require__(16);
+var ComponentView = __webpack_require__(15);
 
 module.exports = ComponentView.extend({
   tagName: 'script',
@@ -45706,6 +45696,7 @@ module.exports = Backbone.View.extend({
 
     var result = this.run(editor, editor, options);
     editor.trigger('run:' + id, result, options);
+    return result;
   },
 
 
@@ -45722,6 +45713,7 @@ module.exports = Backbone.View.extend({
     editor.trigger('stop:' + id + ':before', options);
     var result = this.stop(editor, editor, options);
     editor.trigger('stop:' + id, result, options);
+    return result;
   },
 
 
@@ -46253,41 +46245,26 @@ var Layers = __webpack_require__(53);
 var $ = Backbone.$;
 
 module.exports = {
-<<<<<<< HEAD
-  run: function run(em, sender) {
-    if (!this.toAppend) {
-      var collection = em.DomComponents.getComponent().get('components');
-      var config = em.getConfig();
-      var pfx = config.stylePrefix;
-      var panels = em.Panels;
-      var lyStylePfx = config.layers.stylePrefix || 'nv-';
-
-      config.layers.stylePrefix = config.stylePrefix + lyStylePfx;
-      config.layers.pStylePrefix = config.stylePrefix;
-      config.layers.em = em.editor;
-      config.layers.opened = em.editor.get('opened');
-
-      // Check if panel exists otherwise crate it
-      if (!panels.getPanel('left-container')) this.panel = panels.addPanel({ id: 'left-container' });else this.panel = panels.getPanel('left-container');
-=======
   run: function run(editor) {
     var lm = editor.LayerManager;
     var pn = editor.Panels;
->>>>>>> v0.14.5
 
     if (!this.layers) {
-      var id = 'views-container';
+      var id = 'left-container';
       var layers = document.createElement('div');
-      var panels = pn.getPanel(id) || pn.addPanel({ id: id });
+      this.panel = pn.getPanel(id) || pn.addPanel({ id: id });
       layers.appendChild(lm.render());
-      panels.set('appendContent', layers).trigger('change:appendContent');
+      this.panel.set('appendContent', layers).trigger('change:appendContent');
       this.layers = layers;
     }
 
+    this.panel.set('visible', true);
     this.layers.style.display = 'block';
   },
   stop: function stop() {
     var layers = this.layers;
+    var panel = this.panel;
+    panel && panel.set('visible', false);
     layers && (layers.style.display = 'none');
   }
 };
@@ -46453,10 +46430,13 @@ module.exports = {
       var id = 'left-container';
       var panels = pn.getPanel(id) || pn.addPanel({ id: id });
       var blocks = document.createElement('div');
+      var searchWrapper = document.createElement('div');
       var search = document.createElement('input');
-      search.className = 'gjs-blocks-search';
-      search.placeholder = 'Search..';
 
+      blocks.className = 'gjs-blocks-search-wrapper';
+      searchWrapper.className = 'gjs-blocks-search-container';
+      search.className = 'gjs-blocks-search';
+      search.placeholder = 'Search ...';
       search.addEventListener("keyup", function () {
         var blocks = bm.getAll();
         var value = this.value.toLowerCase();
@@ -46470,17 +46450,23 @@ module.exports = {
         }
       });
 
-      blocks.appendChild(search);
+      searchWrapper.appendChild(search);
+      blocks.appendChild(searchWrapper);
       blocks.appendChild(bm.getContainer());
       panels.set('appendContent', blocks).trigger('change:appendContent');
       this.blocks = blocks;
+      this.panel = panels;
     }
 
+    this.panel.set('visible', true);
     this.blocks.style.display = 'block';
   },
   stop: function stop() {
     var blocks = this.blocks;
     blocks && (blocks.style.display = 'none');
+
+    var panel = this.panel;
+    panel && panel.set('visible', false);
   }
 };
 
@@ -46498,22 +46484,36 @@ module.exports = {
     var modal = editor.Modal;
     var am = editor.AssetManager;
     var config = am.getConfig();
+    var amContainer = am.getContainer();
     var title = opts.modalTitle || config.modalTitle || '';
+    var types = opts.types;
+    var accept = opts.accept;
 
     am.setTarget(opts.target);
     am.onClick(opts.onClick);
     am.onDblClick(opts.onDblClick);
     am.onSelect(opts.onSelect);
 
-    if (!this.rendered) {
-      am.render(am.getAll().filter(function (asset) {
-        return asset.get('type') == 'image';
-      }));
+    if (!this.rendered || types) {
+      var assets = am.getAll();
+
+      if (types) {
+        assets = assets.filter(function (a) {
+          return types.indexOf(a.get('type')) !== -1;
+        });
+      }
+
+      am.render(assets);
       this.rendered = 1;
     }
 
+    if (accept) {
+      var uploadEl = amContainer.querySelector('input#' + config.stylePrefix + 'uploadFile');
+      uploadEl && uploadEl.setAttribute('accept', accept);
+    }
+
     modal.setTitle(title);
-    modal.setContent(am.getContainer());
+    modal.setContent(amContainer);
     modal.open();
   }
 };
@@ -46864,6 +46864,7 @@ module.exports = {
     }
 
     canvasResizer.setOptions(options);
+    canvasResizer.blur();
     canvasResizer.focus(el);
     return canvasResizer;
   },
